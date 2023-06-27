@@ -1,4 +1,4 @@
-from flask import Flask, url_for, render_template
+from flask import Flask, url_for, render_template, session
 from flask_bcrypt import Bcrypt
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, PasswordField, SubmitField
@@ -107,7 +107,9 @@ def register():
         email = reg_form.email.data
         password = bcrypt.generate_password_hash(reg_form.password.data).decode('utf-8')
         add_user(name, email, password)
+        session['email'] = email
         show_db()
+        return render_template("user.html", email=email, name=name)
         
     return render_template("register.html", form=reg_form, message = '')
 
@@ -124,7 +126,7 @@ def login():
             else:
                 is_correct = bcrypt.check_password_hash(password_db, log_form.password.data)
                 if is_correct:
-                    return  render_template("login.html", form=log_form, message='')
+                    return render_template("user.html", email=session['email'], name=name)
                 else: 
                     return  render_template("login.html", form=log_form, message='Пароль не верный')
          else:
