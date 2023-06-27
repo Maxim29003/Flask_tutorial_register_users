@@ -16,6 +16,13 @@ class RegForm(FlaskForm):
     password = PasswordField(label='Password', validators=[DataRequired()])
     submit = SubmitField(label='Register')
 
+
+class LogForm(FlaskForm):
+    name = StringField(label='Name', validators=[DataRequired()])
+    password = PasswordField(label='Password', validators=[DataRequired()])
+    submit = SubmitField(label='Register')
+
+
 @app.route('/register', methods=["GET", "POST"])
 def register():
     reg_form = RegForm()
@@ -23,6 +30,13 @@ def register():
         print(f"Name:{reg_form.name.data}, E-mail:{reg_form.email.data},Password:{reg_form.password.data}")
     return render_template("register.html", form=reg_form)
 
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    log_form = LogForm()
+    if log_form.validate_on_submit():
+         print(f"Name:{log_form.name.data},Password:{log_form.password.data}")
+    return render_template("login.html", form=log_form)
 
 if __name__ == "__main__":
     app.run(debug=True)
