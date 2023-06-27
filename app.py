@@ -60,6 +60,19 @@ def is_user_email(email):
         return False
     else:
         return True
+    
+def get_password(name):
+    conn = sqlite3.connect('users_data.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT password FROM users WHERE name = ?", (name,))
+    result = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    if result is not None:
+        return result[0]
+    else:
+        return None
+
 
 def add_user(name, email, password):
     conn = sqlite3.connect('users_data.db')
@@ -103,7 +116,19 @@ def register():
 def login():
     log_form = LogForm()
     if log_form.validate_on_submit():
-         print(f"Name:{log_form.name.data},Password:{log_form.password.data}")
+         name = log_form.name.data
+         if is_user_name(name):
+            password_db = get_password(name) 
+            if password_db is None:
+                 return render_template("login.html", form=log_form, message='Пароля нет в базе данных')
+            else:
+                is_correct = bcrypt.check_password_hash(password_db, log_form.password.data)
+                if is_correct:
+                    return  render_template("login.html", form=log_form, message='')
+                else: 
+                    return  render_template("login.html", form=log_form, message='Пароль не верный')
+         else:
+             return  render_template("login.html", form=log_form, message='Неверное Имя')
     return render_template("login.html", form=log_form)
 
 if __name__ == "__main__":
